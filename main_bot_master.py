@@ -8,6 +8,7 @@ import logging
 import re
 import time
 import os
+form datetime import date
 
 import telebot
 import schedule
@@ -61,12 +62,13 @@ class main_bot:
         @self.bot.message_handler(commands=['help', ])
         def send_help(message):
             self.bot.reply_to(message, "1. Отправьте букву 'e', чтобы получить карикатуру Елкина;\n"
-                                       "2. Раз в день в 12.00 будут приходить актуальные запросы в google "
+                                       "2. Отправьте букву 't', чтобы получить тренды поиска Google на текущий момент;\n"
+                                       "3. Раз в день в 12.00 будут приходить актуальные запросы в Google "
                                        "по России и Украине;\n"
-                                       "3. Чтобы получить новость по актуальному запросу в ответ нанего отправьте "
+                                       "4. Чтобы получить новость по актуальному запросу в ответ на него отправьте "
                                        "цифру с номером запроса;\n"
-                                       "4. Раз в день в 9.00 будет приходить текущий статус;\n"
-                                       "5. Как только помрет - придет уведомление."
+                                       "5. Раз в день в 9.00 будет приходить текущий статус;\n"
+                                       "6. Как только помрет - придет уведомление."
                               )
 
         @self.bot.message_handler(commands=["start", ])
@@ -164,7 +166,8 @@ class main_bot:
                         if not alive:
                             self.bot.send_message(user.get('chat_id'), 'ПОМЕР!!!')
                         else:
-                            self.bot.send_message(user.get('chat_id'), 'все еще жив...')
+                            self.bot.send_message(user.get('chat_id'), f'все еще жив... (уже {date.today() - (date(1952, 10, 7)).days} дней...'
+})')
 
                     except Exception as e:
                         self.logger_main_bot.exception(f'{e}')
@@ -196,10 +199,14 @@ class main_bot:
                 except Exception as e:
                     self.logger_main_bot.exception(f'{e}')
                     return None
-
+        
+        def clear_self_msg_everyday():
+            self.msg = {}
+            
         schedule.every(30).minutes.do(is_alive_checker_bot)
         schedule.every().day.at("09:00").do(is_alive_checker_morning_bot)
         schedule.every().day.at("12:00").do(google_trends_morning)
+        scgedule.every().day.at("04:00").do(clear_self_msg_everyday)
 
         while True:
             schedule.run_pending()
