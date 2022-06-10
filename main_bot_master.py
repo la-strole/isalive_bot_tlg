@@ -8,7 +8,7 @@ import logging
 import re
 import time
 import os
-form datetime import date
+from datetime import date
 
 import telebot
 import schedule
