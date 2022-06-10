@@ -205,7 +205,7 @@ class main_bot:
         schedule.every(30).minutes.do(is_alive_checker_bot)
         schedule.every().day.at("09:00").do(is_alive_checker_morning_bot)
         schedule.every().day.at("12:00").do(google_trends_morning)
-        scgedule.every().day.at("04:00").do(clear_self_msg_everyday)
+        schedule.every().day.at("04:00").do(clear_self_msg_everyday)
 
         while True:
             schedule.run_pending()
