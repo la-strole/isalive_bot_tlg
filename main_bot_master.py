@@ -166,7 +166,7 @@ class main_bot:
                         if not alive:
                             self.bot.send_message(user.get('chat_id'), 'ПОМЕР!!!')
                         else:
-                            self.bot.send_message(user.get('chat_id'), f'все еще жив... (уже {date.today() - (date(1952, 10, 7)).days} дней...')
+                            self.bot.send_message(user.get('chat_id'), f'все еще жив... (уже {(date.today() - date(1952, 10, 7)).days} дней...')
 
                     except Exception as e:
                         self.logger_main_bot.exception(f'{e}')
