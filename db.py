@@ -15,7 +15,7 @@ class database:
         f_handler.setFormatter(f_format)
         self.logger_db.addHandler(f_handler)
 
-        self.db_name = 'user_db.db'
+        self.db_name = f'{os.environ.get("db_path")}/user_db.db'
 
         if not os.path.isfile('./user_db.db'):
             with open('schema.sql') as fp:
