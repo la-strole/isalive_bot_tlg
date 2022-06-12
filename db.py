@@ -17,7 +17,7 @@ class database:
 
         self.db_name = f'{os.environ.get("db_path")}/user_db.db'
 
-        if not os.path.isfile('./user_db.db'):
+        if not os.path.isfile(self.db_name):
             with open('schema.sql') as fp:
                 try:
                     with sqlite3.connect(self.db_name) as con:

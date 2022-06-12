@@ -37,8 +37,6 @@ class main_bot:
         self.google_trends = google_trands.google_trends()
         self.google_news = google_news.google_news()
 
-        self.msg = {}  # {message.chat.id:[msg.id,]}
-
     def run_bot(self):
 
         def one_letter_command_e(message):
@@ -57,6 +55,20 @@ class main_bot:
                 else:
                     return False
             except Exception:
+                return False
+
+        def is_replay_for_google_trends(message):
+            if message.reply_to_message:
+                replaied_message = message.reply_to_message.text
+                try:
+                    title = replaied_message.split('\n')[0]
+                except Exception:
+                    return False
+                if title == 'Тренды Google:':
+                    return True
+                else:
+                    return False
+            else:
                 return False
 
         @self.bot.message_handler(commands=['help', ])
@@ -97,22 +109,16 @@ class main_bot:
 
             russian_trends = self.google_trends.google_trending_search("russia")
             ukranian_trends = self.google_trends.google_trending_search("ukraine")
-            result = 'В России:\n'
+            result = 'Тренды Google:\n\nВ России:\n'
             for num, item in enumerate(russian_trends):
                 result = '\n'.join((result, f'{num + 1}\t{item}'))
             result = '\n'.join((result, f'\n\nВ Украине:\n'))
             for num, item in enumerate(ukranian_trends):
                 result = '\n'.join((result, f'{num + 1 + len(russian_trends)}\t{item}'))
             result = f'{result}\n----------'
-            m = self.bot.send_message(message.chat.id, result)
+            self.bot.send_message(message.chat.id, result)
 
-            if message.chat.id not in self.msg:
-                self.msg[message.chat.id] = [m.id]
-            else:
-                self.msg[message.chat.id].append(m.id)
-
-        @self.bot.message_handler(func=lambda message: message.reply_to_message and message.chat.id in self.msg and
-                                                       message.reply_to_message.id in self.msg[message.chat.id])
+        @self.bot.message_handler(func=is_replay_for_google_trends)
         def send_google_news(message):
             try:
                 number = int(message.text)
@@ -166,7 +172,9 @@ class main_bot:
                         if not alive:
                             self.bot.send_message(user.get('chat_id'), 'ПОМЕР!!!')
                         else:
-                            self.bot.send_message(user.get('chat_id'), f'все еще жив... (уже {(date.today() - date(1952, 10, 7)).days} дней...')
+                            self.bot.send_message(user.get('chat_id'),
+                                                  f'все еще жив... '
+                                                  f'(уже {(date.today() - date(1952, 10, 7)).days} дней...)')
 
                     except Exception as e:
                         self.logger_main_bot.exception(f'{e}')
@@ -179,7 +187,7 @@ class main_bot:
             russian_trends = self.google_trends.google_trending_search("russia")
             ukranian_trends = self.google_trends.google_trending_search("ukraine")
 
-            result = 'Тренды Google на сегодня:\n\nВ России:\n'
+            result = 'Тренды Google:\n\nВ России:\n'
             for num, item in enumerate(russian_trends):
                 result = '\n'.join((result, f'{num + 1}\t{item}'))
             result = '\n'.join((result, f'\n\nВ Украине:\n'))
@@ -189,23 +197,14 @@ class main_bot:
             users = self.database.get_users()
             for user in users:
                 try:
-                    m = self.bot.send_message(user.get('chat_id'), result)
-                    if user.get('chat_id') not in self.msg:
-                        self.msg[user.get('chat_id')] = [m.id]
-                    else:
-                        self.msg[user.get('chat_id')].append(m.id)
-
+                    self.bot.send_message(user.get('chat_id'), result)
                 except Exception as e:
                     self.logger_main_bot.exception(f'{e}')
                     return None
-        
-        def clear_self_msg_everyday():
-            self.msg = {}
-            
+
         schedule.every(30).minutes.do(is_alive_checker_bot)
         schedule.every().day.at("09:00").do(is_alive_checker_morning_bot)
         schedule.every().day.at("12:00").do(google_trends_morning)
-        schedule.every().day.at("04:00").do(clear_self_msg_everyday)
 
         while True:
             schedule.run_pending()
@@ -213,7 +212,6 @@ class main_bot:
 
 
 if __name__ == "__main__":
-
     instance_main_bot = main_bot()
 
     thred1 = Thread(target=instance_main_bot.run_bot)
