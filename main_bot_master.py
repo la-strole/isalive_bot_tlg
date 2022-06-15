@@ -2,6 +2,8 @@
 # https://towardsdatascience.com/google-trends-api-for-python-a84bc25db88f?gi=ddd552717c2a
 # https://www.pythontutorial.net/advanced-python/python-threading/
 # https://dev.to/biplov/handling-passwords-and-secret-keys-using-environment-variables-2ei0
+# https://github.com/sigma67/ytmusicapi
+
 
 from threading import Thread
 import logging
@@ -19,6 +21,7 @@ import google_trands
 import is_alive_checker
 import telegram_image
 import db
+import youtube_music
 
 
 class main_bot:
@@ -57,6 +60,15 @@ class main_bot:
             except Exception:
                 return False
 
+        def one_letter_command_m(message):
+            try:
+                if len(message.text) == 1 and message.text.split()[0] == 'm':
+                    return True
+                else:
+                    return False
+            except Exception:
+                return False
+
         def is_replay_for_google_trends(message):
             if message.reply_to_message:
                 replaied_message = message.reply_to_message.text
@@ -70,6 +82,22 @@ class main_bot:
                     return False
             else:
                 return False
+
+        def is_replay_for_music(message):
+            if message.reply_to_message:
+                replaied_message = message.reply_to_message.text
+                try:
+                    title = replaied_message.split('\n')[0]
+                except Exception:
+                    return False
+                if title == 'Youtube music:':
+                    return True
+                else:
+                    return False
+            else:
+                return False
+
+
 
         @self.bot.message_handler(commands=['help', ])
         def send_help(message):
@@ -118,6 +146,30 @@ class main_bot:
             result = f'{result}\n----------'
             self.bot.send_message(message.chat.id, result)
 
+        @self.bot.message_handler(func=one_letter_command_m)
+        def send_youtube_music(message):
+            name = message.text[2:]
+            music = youtube_music.music()
+            result = music.get_search_result(name)
+            ret_msg = "Youtube music:\n"
+            if result:
+                for number, row in enumerate(result):
+                    '\n'.join((ret_msg, f'{number}\t{row[0]}\t{row[1]}\t{row[2]}'))
+                self.bot.send_message(message.chat.id, ret_msg)
+            else:
+                self.bot.send_message(message.chat.id, "Не удалось найти песню, попробуйте еще раз.")
+            russian_trends = self.google_trends.google_trending_search("russia")
+            ukranian_trends = self.google_trends.google_trending_search("ukraine")
+            result = 'Тренды Google:\n\nВ России:\n'
+            for num, item in enumerate(russian_trends):
+                result = '\n'.join((result, f'{num + 1}\t{item}'))
+            result = '\n'.join((result, f'\n\nВ Украине:\n'))
+            for num, item in enumerate(ukranian_trends):
+                result = '\n'.join((result, f'{num + 1 + len(russian_trends)}\t{item}'))
+            result = f'{result}\n----------'
+            self.bot.send_message(message.chat.id, result)
+
+
         @self.bot.message_handler(func=is_replay_for_google_trends)
         def send_google_news(message):
             try:
@@ -143,6 +195,29 @@ class main_bot:
                 self.bot.send_message(message.chat.id, search_result)
             else:
                 self.bot.send_message(message.chat.id, 'Попробуйте еще раз. Ничего не найти.')
+
+            @self.bot.message_handler(func=is_replay_for_music)
+            def write_youtube_music_link(message):
+                try:
+                    number = int(message.text)
+                except Exception as e:
+                    self.logger_main_bot.exception(f'Error than parse music. {e}')
+                    self.bot.send_message(message.chat.id, 'Попробуйте еще раз.')
+                    return
+
+                replaied_message = message.reply_to_message.text
+
+                search_word = re.findall(f'\n{number}(.+)\n', replaied_message)
+                if search_word:
+                    link = youtube_music.music().get_video_link(search_word[0])
+                else:
+                    link = None
+                if link:
+                    with open('~/youtube_urls.txt', 'w') as fp:
+                        fp.write(link)
+                    self.bot.send_message(message.chat.id, 'Воспроизведение начнется через 10 секунд')
+                else:
+                    self.bot.send_message(message.chat.id, 'Попробуйте еще раз. Ничего не найти.')
 
         self.bot.infinity_polling()
 
