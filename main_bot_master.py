@@ -62,7 +62,7 @@ class main_bot:
 
         def one_letter_command_m(message):
             try:
-                if len(message.text) == 1 and message.text.split()[0] == 'm':
+                if message.text.split()[0] == 'm':
                     return True
                 else:
                     return False
@@ -158,17 +158,6 @@ class main_bot:
                 self.bot.send_message(message.chat.id, ret_msg)
             else:
                 self.bot.send_message(message.chat.id, "Не удалось найти песню, попробуйте еще раз.")
-            russian_trends = self.google_trends.google_trending_search("russia")
-            ukranian_trends = self.google_trends.google_trending_search("ukraine")
-            result = 'Тренды Google:\n\nВ России:\n'
-            for num, item in enumerate(russian_trends):
-                result = '\n'.join((result, f'{num + 1}\t{item}'))
-            result = '\n'.join((result, f'\n\nВ Украине:\n'))
-            for num, item in enumerate(ukranian_trends):
-                result = '\n'.join((result, f'{num + 1 + len(russian_trends)}\t{item}'))
-            result = f'{result}\n----------'
-            self.bot.send_message(message.chat.id, result)
-
 
         @self.bot.message_handler(func=is_replay_for_google_trends)
         def send_google_news(message):

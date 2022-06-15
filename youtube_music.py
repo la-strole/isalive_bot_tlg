@@ -18,4 +18,4 @@ class music:
 
 if __name__ == "__main__":
     music = music()
-    print(music.get_search_Result("рамамба хара"))
+    print(music.get_search_result("рамамба хара"))
