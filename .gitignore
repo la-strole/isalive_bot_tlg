@@ -131,3 +131,4 @@ dmypy.json
 
 # databases
 *.db
+youtube_urls.txt

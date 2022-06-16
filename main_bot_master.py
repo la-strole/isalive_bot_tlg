@@ -154,7 +154,7 @@ class main_bot:
             ret_msg = "Youtube music:\n"
             if result:
                 for number, row in enumerate(result):
-                    '\n'.join((ret_msg, f'{number}\t{row[0]}\t{row[1]}\t{row[2]}'))
+                    ret_msg = '\n'.join((ret_msg, f'{number + 1}\t{row[0]}\t{row[1]}\t{row[2]}'))
                 self.bot.send_message(message.chat.id, ret_msg)
             else:
                 self.bot.send_message(message.chat.id, "Не удалось найти песню, попробуйте еще раз.")
@@ -185,28 +185,28 @@ class main_bot:
             else:
                 self.bot.send_message(message.chat.id, 'Попробуйте еще раз. Ничего не найти.')
 
-            @self.bot.message_handler(func=is_replay_for_music)
-            def write_youtube_music_link(message):
-                try:
-                    number = int(message.text)
-                except Exception as e:
-                    self.logger_main_bot.exception(f'Error than parse music. {e}')
-                    self.bot.send_message(message.chat.id, 'Попробуйте еще раз.')
-                    return
+        @self.bot.message_handler(func=is_replay_for_music)
+        def write_youtube_music_link(message):
+            try:
+                number = int(message.text)
+            except Exception as e:
+                self.logger_main_bot.exception(f'Error than parse music. {e}')
+                self.bot.send_message(message.chat.id, 'Попробуйте еще раз.')
+                return
 
-                replaied_message = message.reply_to_message.text
+            replaied_message = message.reply_to_message.text
 
-                search_word = re.findall(f'\n{number}(.+)\n', replaied_message)
-                if search_word:
-                    link = youtube_music.music().get_video_link(search_word[0])
-                else:
-                    link = None
-                if link:
-                    with open('~/youtube_urls.txt', 'w') as fp:
-                        fp.write(link)
-                    self.bot.send_message(message.chat.id, 'Воспроизведение начнется через 10 секунд')
-                else:
-                    self.bot.send_message(message.chat.id, 'Попробуйте еще раз. Ничего не найти.')
+            search_word = re.findall(f'\n{number}(.+)\n', replaied_message)[0]
+            if search_word:
+                link = youtube_music.music().get_video_link(search_word)
+            else:
+                link = None
+            if link:
+                with open('youtube_urls.txt', 'w') as fp:
+                    fp.write(link)
+                self.bot.send_message(message.chat.id, 'Воспроизведение начнется через 10 секунд')
+            else:
+                self.bot.send_message(message.chat.id, 'Попробуйте еще раз. Ничего не найти.')
 
         self.bot.infinity_polling()
 

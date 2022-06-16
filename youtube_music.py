@@ -13,7 +13,7 @@ class music:
         return answer
 
     def get_video_link(self, item_from_yt_result):
-        return f'https://www.youtube.com/watch?v={item_from_yt_result[2]}'
+        return f'https://www.youtube.com/watch?v={item_from_yt_result.split()[-1]}'
 
 
 if __name__ == "__main__":

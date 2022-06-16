@@ -25,7 +25,7 @@ class google_news:
             googlenews = GoogleNews(lang=f'{language}', period='5d', region=f'{language.upper()}')
             googlenews.search(f'{key_word}')
             first_link = googlenews.results()[0]
-            result = f'{first_link.get("title")}. \nДата: {first_link.get("date")}\nМедиа:{first_link.get("media")}'
+            result = f'{first_link.get("title")}. \nДата: {first_link.get("date")}\nМедиа: {first_link.get("media")}'
         except Exception as e:
             self.logger_gooogle_news.exception(f"google_news: problem with google news. {e}")
             return None
