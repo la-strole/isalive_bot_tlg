@@ -5,8 +5,6 @@ import logging
 import requests
 from datetime import datetime
 
-from transliterate import translit
-
 from dotenv import load_dotenv
 
 
@@ -37,7 +35,7 @@ class weather:
 
     @_decorator_token_exist
     def get_geocoding(self, city):
-        city = translit(city, 'ru', reversed=True)
+
         url = f'https://api.openweathermap.org/geo/1.0/direct?' \
               f'q={city}&limit=2&appid={self.token}'
         try:
@@ -50,7 +48,7 @@ class weather:
 
     @_decorator_token_exist
     def get_current_weather(self, city):
-        city = translit(city, 'ru', reversed=True)
+
         geocoding = self.get_geocoding(city)
         if geocoding:
             url = f"https://api.openweathermap.org/data/2.5/weather?" \
@@ -60,7 +58,7 @@ class weather:
                 item = {'weather': responce['weather'][0]['description']}
                 item.update(responce['main'])
                 item.update(responce['wind'])
-                result = f"Погода в г. {translit(city, 'ru')} ({responce['sys']['country']}):\n"
+                result = f"Погода в г. {city} ({responce['sys']['country']}):\n"
                 result = ''.join((result, f'{item["weather"]}, '
                                           f'{int(item["temp"])}\u00B0, '
                                           f'ощущается {int(item["feels_like"])}\u00B0, '
@@ -76,7 +74,7 @@ class weather:
 
     @_decorator_token_exist
     def get_weather_forcast_day(self, city, day):
-        city = translit(city, 'ru', reversed=True)
+
         geocoding = self.get_geocoding(city)
         if geocoding:
             url = f"https://api.openweathermap.org/data/2.5/forecast?" \
@@ -87,7 +85,7 @@ class weather:
                 day_weather = [row for row in responce['list'] if datetime.fromtimestamp(row['dt']).day == int(day)]
                 if not day_weather:
                     return "Погода доступна на 6 дней вперед"
-                result = f'Погода в г. {translit(city, "ru")} ({responce["city"]["country"]}) на {day} число\n'
+                result = f'Погода в г. {city} ({responce["city"]["country"]}) на {day} число\n'
                 for item in day_weather:
                     dt = datetime.fromtimestamp(item["dt"])
                     result = '\n'.join((result, f'{dt.hour}:00 {item["weather"][0]["description"]}, '
