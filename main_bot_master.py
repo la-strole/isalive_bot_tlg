@@ -151,16 +151,10 @@ class main_bot:
         @self.bot.message_handler(func=lambda m: m.text.startswith('Погода ') or m.text.startswith('погода '))
         def send_weather(message):
             try:
-                first_line = message.text.split('\n')[0].split()
-                if len(first_line) == 2:
-                    city = first_line[1]
-                    day = None
-                elif len(first_line) == 3:
-                    city = first_line[1]
-                    day = first_line[2]
-                else:
-                    city = None
-                    day = None
+                first_line = re.findall(r'[пП]огода (\D+)(\d*)', message.text)[0]
+                city = first_line[0]
+                day = first_line[1]
+
                 if city and day:
                     msg = weather.weather().get_weather_forcast_day(city, day)
                     if msg:

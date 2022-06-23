@@ -60,7 +60,7 @@ class weather:
                 item = {'weather': responce['weather'][0]['description']}
                 item.update(responce['main'])
                 item.update(responce['wind'])
-                result = f"Погода в г. {translit(city, 'ru')} {responce['sys']['country']}:\n"
+                result = f"Погода в г. {translit(city, 'ru')} ({responce['sys']['country']}):\n"
                 result = ''.join((result, f'{item["weather"]}, '
                                           f'{int(item["temp"])}\u00B0, '
                                           f'ощущается {int(item["feels_like"])}\u00B0, '
@@ -87,7 +87,7 @@ class weather:
                 day_weather = [row for row in responce['list'] if datetime.fromtimestamp(row['dt']).day == int(day)]
                 if not day_weather:
                     return "Погода доступна на 6 дней вперед"
-                result = f'Погода в г. {translit(city, "ru")} {responcep["city"]["country"]} на {day} число\n'
+                result = f'Погода в г. {translit(city, "ru")} ({responce["city"]["country"]}) на {day} число\n'
                 for item in day_weather:
                     dt = datetime.fromtimestamp(item["dt"])
                     result = '\n'.join((result, f'{dt.hour}:00 {item["weather"][0]["description"]}, '
