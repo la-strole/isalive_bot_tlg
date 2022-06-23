@@ -84,7 +84,7 @@ class weather:
             try:
                 assert 1 < int(day) < 31
                 responce = requests.get(url).json()
-                day_weather = [row for row in responce['list'] if datetime.fromtimestamp(row['dt']).day == day]
+                day_weather = [row for row in responce['list'] if datetime.fromtimestamp(row['dt']).day == int(day)]
                 if not day_weather:
                     return "Погода доступна на 6 дней вперед"
                 result = f'Погода в г. {translit(city, "ru")} на {day} число\n'

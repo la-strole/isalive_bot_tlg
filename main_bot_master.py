@@ -82,7 +82,9 @@ class main_bot:
                                        "4. Чтобы получить новость по актуальному запросу в ответ на него отправьте "
                                        "цифру с номером запроса;\n"
                                        "5. Раз в день в 9.00 будет приходить текущий статус;\n"
-                                       "6. Как только помрет - придет уведомление."
+                                       "6. 'погода <город>' - узнать текущую погоду, погода <город> <число> - "
+                                       "погода на число (доступно на 6 днй вперед);\n"
+                                       "7. Как только помрет - придет уведомление."
                               )
 
         @self.bot.message_handler(commands=["start", ])
@@ -146,12 +148,19 @@ class main_bot:
             else:
                 self.bot.send_message(message.chat.id, 'Попробуйте еще раз. Ничего не найти.')
 
-        @self.bot.message_handler(func=lambda m: m.text.startswith('Погода '))
+        @self.bot.message_handler(func=lambda m: m.text.startswith('Погода ') or m.text.startswith('погода '))
         def send_weather(message):
             try:
-                first_line = message.text.split('\n')[0]
-                city = first_line.split[1]
-                day = first_line.split[2]
+                first_line = message.text.split('\n')[0].split()
+                if len(first_line) == 2:
+                    city = first_line[1]
+                    day = None
+                elif len(first_line) == 3:
+                    city = first_line[1]
+                    day = first_line[2]
+                else:
+                    city = None
+                    day = None
                 if city and day:
                     msg = weather.weather().get_weather_forcast_day(city, day)
                     if msg:
